@@ -109,9 +109,9 @@ async def clean_up_channels():
 
             del current_channels[userid]
 
-@bot.command(aliases=['rmvcs', 'removevcs', 'delallvcs', ], hidden=True)
+@bot.command(aliases=['rmvcs', 'removevcs', 'delalltempvcs'], hidden=True)
 @commands.has_permissions(manage_channels=True)
-async def removeallvcs(ctx):
+async def removealltempvcs(ctx):
     """This command can be used to remove all temporary voice channels."""
     global loop_active
     while len(current_channels) > 0:
