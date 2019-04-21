@@ -35,7 +35,7 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     You must specify a player limit if you want to specify a custom name."""
     global loop_active
     await ctx.message.delete()
-    if name is None or len(name) < 4 or len(name) > 20:
+    if name is None or len(name) < 4 or len(name) > 18:
         final_name = ctx.author.name
     else:
         final_name = name
@@ -44,7 +44,7 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
         final_limit = 20
     elif player_limit < 2:
         await ctx.send(
-            "The amount of users for the voice channel has to be at least 2.\nDie Menge der Benutzer des Sprachkanals muss mindestens 2 sein.")
+            "The amount of users for the voice channel has to be at least 2.\nDie Menge der Benutzer des Sprachkanals muss mindestens 2 sein.", delete_after=30)
         return
     else:
         final_limit = player_limit
