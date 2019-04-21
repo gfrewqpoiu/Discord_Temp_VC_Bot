@@ -55,8 +55,8 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
             print("A voice channel was deleted by a moderator without using commands!")
         else:
             await ctx.send(
-            f"""You already have a temporary voice channel. It is {channel.name}.
-            Du hast bereits einen temporären Sprachkanal erstellt. Er heißt {channel.name}.""")
+            f"""You already have a temporary voice channel. It is `{channel.name}`.
+            Du hast bereits einen temporären Sprachkanal erstellt. Er heißt `{channel.name}`.""")
             return
 
     try:
@@ -76,7 +76,6 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
         return
     current_channels[ctx.author.id]=channel.id
     if not loop_active:
-        await asyncio.sleep(1)
         clean_up_channels.start()
         print("Started cleanup loop.")
         loop_active=True
