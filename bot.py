@@ -31,7 +31,8 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     """This creates a temporary voice channel.
     The optional parameters are:
     :param player_limit The player limit of the voice channel, limited to 20.
-    :param name The name of the voice channel."""
+    :param name The name of the voice channel.
+    You must specify a player limit if you want to specify a custom name."""
     global loop_active
     await ctx.message.delete()
     if name is None or len(name) < 4 or len(name) > 20:
@@ -55,13 +56,13 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
             print("A voice channel was deleted by a moderator without using commands!")
         else:
             await ctx.send(
-            f"You already have a temporary voice channel. It is `{channel.name}`.\nDu hast bereits einen temporären Sprachkanal erstellt. Er heißt `{channel.name}`.")
+            f"You already have a temporary voice channel. It is `{channel.name}`.\nDu hast bereits einen temporären Sprachkanal erstellt. Er heißt `{channel.name}`.", delete_after=30)
             return
 
     try:
         channel = await ctx.guild.create_voice_channel(name=final_name, user_limit=final_limit, category=category, reason=
         f"{ctx.author} created a temporary voice channel for {final_limit} players.")
-        await ctx.send(f"A voice channel with the name `{final_name}` was created.\nEin Sprachkanal mit dem Namen `{final_name}` wurde erstellt.")
+        await ctx.send(f"A voice channel with the name `{final_name}` was created.\nEin Sprachkanal mit dem Namen `{final_name}` wurde erstellt.", delete_after=60)
 
     except discord.Forbidden:
         await ctx.send(
@@ -112,8 +113,10 @@ async def clean_up_channels():
 @bot.command(aliases=['rmvcs', 'removevcs', 'delalltempvcs'])
 @commands.has_permissions(manage_channels=True)
 async def removealltempvcs(ctx):
-    """This moderator only command can be used to remove all temporary voice channels."""
+    """This command can be used to remove all temporary voice channels.
+    It can only be used by moderators."""
     global loop_active
+    await ctx.message.delete()
     while len(current_channels) > 0:
         userid, channelid = current_channels.popitem()
         user = bot.get_user(userid)
@@ -126,6 +129,7 @@ async def removealltempvcs(ctx):
     clean_up_channels.cancel()
     loop_active=False
     print("Stopped the loop")
+    ctx.senc("Done!", delete_after=10)
 
 
 try:
