@@ -26,7 +26,7 @@ async def on_ready():
     print(bot.user.id)
     category = bot.get_channel(int(settings.get('Category', None)))
 
-@bot.command(aliases=['newvc', 'vc', 'tempvc', 'neuvc'])
+@bot.command(aliases=['vc', 'tempvc',])
 async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     """This creates a temporary voice channel.
     The optional parameters are:
@@ -35,7 +35,7 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     You must specify a player limit if you want to specify a custom name."""
     global loop_active
     await ctx.message.delete()
-    if name is None or len(name) < 4 or len(name) > 18:
+    if name is None or len(name) < 4 or len(name) > 16:
         final_name = ctx.author.name
     else:
         final_name = name
