@@ -4,13 +4,15 @@ import tasks
 from typing import Dict
 import asyncio
 import configparser
+from copy import deepcopy
+import datetime
 
-config = configparser.ConfigParser('config.ini')
+config = configparser.ConfigParser()
+config.read('config.ini')
 login = config['Login']
 settings = config['Settings']
 loginID = login.get('Login Token')
-current_channels={} # Type: Dict[discord.Member, discord.VoiceChannel]
-category = settings.get('Category', None)
+current_channels={} # Type: Dict[int, int]
 loop_active=False
 
 bot = commands.Bot(command_prefix=settings.get('prefix', '!'),
@@ -18,9 +20,11 @@ bot = commands.Bot(command_prefix=settings.get('prefix', '!'),
 
 @bot.event
 async def on_ready():
+    global category
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
+    category = bot.get_channel(int(settings.get('Category', None)))
 
 @bot.command(aliases=['newvc', 'vc', 'tempvc', 'neuvc'])
 async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
@@ -28,6 +32,7 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     The optional parameters are:
     :param player_limit The player limit of the voice channel, limited to 20.
     :param name The name of the voice channel."""
+    global loop_active
     if name is None or len(name) < 4 or len(name) > 20:
         final_name = ctx.author.name
     else:
@@ -43,14 +48,19 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     else:
         final_limit = player_limit
 
-    if ctx.author in current_channels:
-        await ctx.send(
-            f"""You already have a temporary voice channel. It is {current_channels[ctx.author].name}
-            Du hast bereits einen temporären Sprachkanal erstellt. Er heißt {current_channels[ctx.author].name}""")
-        return
+    if ctx.author.id in current_channels:
+        channel= bot.get_channel(current_channels[ctx.author.id])
+        if channel is None:
+            del current_channels[ctx.author.id]
+            print("A voice channel was deleted by a moderator without using commands!")
+        else:
+            await ctx.send(
+            f"""You already have a temporary voice channel. It is {channel.name}.
+            Du hast bereits einen temporären Sprachkanal erstellt. Er heißt {channel.name}.""")
+            return
 
     try:
-        channel = await ctx.guild.create_voice_channel(name=final_name, category=category, reason=
+        channel = await ctx.guild.create_voice_channel(name=final_name, user_limit=final_limit, category=category, reason=
         f"{ctx.author} created a temporary voice channel for {final_limit} players.")
 
     except discord.Forbidden:
@@ -64,39 +74,59 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
             "The creation of the voice channel failed."
         )
         return
-    current_channels[ctx.author]=channel
+    current_channels[ctx.author.id]=channel.id
     if not loop_active:
-        await asyncio.sleep(120)
+        await asyncio.sleep(1)
         clean_up_channels.start()
+        print("Started cleanup loop.")
+        loop_active=True
 
-@tasks.loop(minutes=10)
+@tasks.loop(minutes=5)
 async def clean_up_channels():
-    for user, channel in current_channels:
-        if channel not in channel.guild.voice_channels:
-            del current_channels[user]
+    global loop_active
+    min_difference=datetime.timedelta(minutes=2)
+    print("Cleaning up.")
+    if len(current_channels) == 0:
+        loop_active = False
+        clean_up_channels.cancel()
+        return print("Loop is running but no channels are left.")
+    tempdict=deepcopy(current_channels)
+    for userid, channelid in tempdict.items():
+        channel = bot.get_channel(channelid)
+        user = bot.get_user(userid)
+        if channel is None:
+            del current_channels[userid]
             print("A voice channel was deleted by a moderator without using commands!")
             continue
 
         if len(channel.members)==0:
+            difference=datetime.datetime.utcnow() - channel.created_at
+            if difference < min_difference:
+                continue
             try:
-                channel.delete(reason=
-                               f"The temporary voice channel {channel.name} created by {user.name} is empty.")
+                await channel.delete(reason=f"The temporary voice channel {channel.name} created by {user.name} is empty.")
             except:
                 continue
 
-            del current_channels[user]
+            del current_channels[userid]
 
-@bot.command(aliases=['rmvcs', 'removevcs'], hidden=True)
+@bot.command(aliases=['rmvcs', 'removevcs', 'delallvcs', ], hidden=True)
 @commands.has_permissions(manage_channels=True)
 async def removeallvcs(ctx):
     """This command can be used to remove all temporary voice channels."""
+    global loop_active
     while len(current_channels) > 0:
-        user, channel = current_channels.popitem()
+        userid, channelid = current_channels.popitem()
+        user = bot.get_user(userid)
+        channel = bot.get_channel(channelid)
         try:
             await channel.delete(reason=f'The remove all voice channels command was used by {ctx.author.name}.')
         except:
             pass
         print(f"The channel {channel.name}, made by {user.name} was deleted by a moderator.")
+    clean_up_channels.cancel()
+    loop_active=False
+    print("Stopped the loop")
 
 
 try:
