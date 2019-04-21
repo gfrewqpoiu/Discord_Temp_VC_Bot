@@ -33,6 +33,7 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     :param player_limit The player limit of the voice channel, limited to 20.
     :param name The name of the voice channel."""
     global loop_active
+    await ctx.message.delete()
     if name is None or len(name) < 4 or len(name) > 20:
         final_name = ctx.author.name
     else:
@@ -62,6 +63,7 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     try:
         channel = await ctx.guild.create_voice_channel(name=final_name, user_limit=final_limit, category=category, reason=
         f"{ctx.author} created a temporary voice channel for {final_limit} players.")
+        await ctx.send(f"A voice channel with the name {final_name} was created.\nEin Sprachkanal mit dem Namen {final_name} wurde erstellt.")
 
     except discord.Forbidden:
         await ctx.send(
