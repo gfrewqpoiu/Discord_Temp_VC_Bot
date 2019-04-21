@@ -109,10 +109,10 @@ async def clean_up_channels():
 
             del current_channels[userid]
 
-@bot.command(aliases=['rmvcs', 'removevcs', 'delalltempvcs'], hidden=True)
+@bot.command(aliases=['rmvcs', 'removevcs', 'delalltempvcs'])
 @commands.has_permissions(manage_channels=True)
 async def removealltempvcs(ctx):
-    """This command can be used to remove all temporary voice channels."""
+    """This moderator only command can be used to remove all temporary voice channels."""
     global loop_active
     while len(current_channels) > 0:
         userid, channelid = current_channels.popitem()
