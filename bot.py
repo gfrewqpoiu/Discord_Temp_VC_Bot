@@ -43,8 +43,7 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
         final_limit = 20
     elif player_limit < 2:
         await ctx.send(
-            """The amount of users for the voice channel has to be at least 2.
-            Die Menge der Benutzer des Sprachkanals muss mindestens 2 sein.""")
+            "The amount of users for the voice channel has to be at least 2.\nDie Menge der Benutzer des Sprachkanals muss mindestens 2 sein.")
         return
     else:
         final_limit = player_limit
@@ -56,14 +55,13 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
             print("A voice channel was deleted by a moderator without using commands!")
         else:
             await ctx.send(
-            f"""You already have a temporary voice channel. It is `{channel.name}`.
-            Du hast bereits einen temporären Sprachkanal erstellt. Er heißt `{channel.name}`.""")
+            f"You already have a temporary voice channel. It is `{channel.name}`.\nDu hast bereits einen temporären Sprachkanal erstellt. Er heißt `{channel.name}`.")
             return
 
     try:
         channel = await ctx.guild.create_voice_channel(name=final_name, user_limit=final_limit, category=category, reason=
         f"{ctx.author} created a temporary voice channel for {final_limit} players.")
-        await ctx.send(f"A voice channel with the name {final_name} was created.\nEin Sprachkanal mit dem Namen {final_name} wurde erstellt.")
+        await ctx.send(f"A voice channel with the name `{final_name}` was created.\nEin Sprachkanal mit dem Namen `{final_name}` wurde erstellt.")
 
     except discord.Forbidden:
         await ctx.send(
