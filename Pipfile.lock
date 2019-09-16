@@ -66,10 +66,10 @@
         },
         "discord-py": {
             "hashes": [
-                "sha256:7cb420731fe9c8d820401f3290957433a10169816d08805f826042941d25928e"
+                "sha256:4684733fa137cc7def18087ae935af615212e423e3dbbe3e84ef01d7ae8ed17d"
             ],
             "index": "pypi",
-            "version": "==1.0.1"
+            "version": "==1.2.3"
         },
         "idna": {
             "hashes": [
