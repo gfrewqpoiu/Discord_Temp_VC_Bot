@@ -1,6 +1,5 @@
 import discord
-from discord.ext import commands
-import tasks
+from discord.ext import commands, tasks
 from typing import Dict
 import asyncio
 import configparser
@@ -18,6 +17,7 @@ loop_active=False
 bot = commands.Bot(command_prefix=settings.get('prefix', '!'),
                    description=settings.get('Bot Description', 'Temporary Voice Channel Bot'), pm_help=True)
 
+
 @bot.event
 async def on_ready():
     global category
@@ -25,6 +25,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     category = bot.get_channel(int(settings.get('Category', None)))
+
 
 @bot.command(aliases=['vc', 'tempvc',])
 async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
@@ -81,10 +82,11 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
         print("Started cleanup loop.")
         loop_active=True
 
+
 @tasks.loop(minutes=5)
 async def clean_up_channels():
     global loop_active
-    min_difference=datetime.timedelta(minutes=2)
+    min_difference = datetime.timedelta(minutes=2)
     print("Cleaning up.")
     if len(current_channels) == 0:
         loop_active = False
@@ -109,6 +111,7 @@ async def clean_up_channels():
                 continue
 
             del current_channels[userid]
+
 
 @bot.command(aliases=['rmvcs', 'removevcs', 'delalltempvcs'])
 @commands.has_permissions(manage_channels=True)
