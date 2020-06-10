@@ -33,7 +33,8 @@ async def newtempvc(ctx, player_limit: int = 4, *, name: str = ""):
     The optional parameters are:
     :param player_limit The player limit of the voice channel, limited to 20.
     :param name The name of the voice channel.
-    You must specify a player limit if you want to specify a custom name."""
+    You must specify a player limit if you want to specify a custom name.
+    For Example: `!vc 3 Anno 1800 Round 1` creates a Voice Channel for 3 People with that name."""
     global loop_active
     await ctx.message.delete()
     if name is None or len(name) < 4 or len(name) > 16:
