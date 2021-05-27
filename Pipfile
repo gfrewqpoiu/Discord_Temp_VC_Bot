@@ -12,7 +12,7 @@ pylint = "*"
 "discord.py-stubs" = "*"
 
 [packages]
-importlib-metadata = "<3"
+importlib-metadata = "<5"
 discord-py = "*"
 
 [requires]
